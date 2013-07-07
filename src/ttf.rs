@@ -15,14 +15,6 @@ use std::str;
 
 use sdl::video::{Color, Surface};
 
-#[cfg(target_os="win32")]
-#[cfg(target_os="linux")]
-#[cfg(target_os="freebsd")]
-mod others {
-    #[link_args="-lSDL_ttf"]
-    extern {}
-}
-
 mod ffi {
     use std::libc::{c_int, c_char, c_void, c_long};
     use sdl::video::ll::{SDL_Color, SDL_Surface};
@@ -42,6 +34,7 @@ mod ffi {
     pub static TTF_HINTING_MONO: TTF_Hinting = 2;
     pub static TTF_HINTING_NONE: TTF_Hinting = 3;
 
+    #[link_args = "-lSDL_ttf"]
     extern "C" {
         fn TTF_Init() -> c_int;
         fn TTF_WasInit() -> c_int;
