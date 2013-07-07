@@ -9,8 +9,8 @@
 
 extern mod sdl;
 
-use std::libc::{c_int, c_long};
 use std::cast;
+use std::libc::{c_int, c_long};
 use std::str;
 
 use sdl::video::{Color, Surface};
