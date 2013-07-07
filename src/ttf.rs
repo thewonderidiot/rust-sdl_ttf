@@ -42,7 +42,7 @@ mod ffi {
     pub static TTF_HINTING_MONO: TTF_Hinting = 2;
     pub static TTF_HINTING_NONE: TTF_Hinting = 3;
 
-    extern {
+    extern "C" {
         fn TTF_Init() -> c_int;
         fn TTF_WasInit() -> c_int;
         fn TTF_Quit();
