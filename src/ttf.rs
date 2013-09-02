@@ -103,6 +103,7 @@ pub struct Font {
 }
 
 impl Drop for Font {
+    #[fixed_stack_segment]
     fn drop(&self) {
         unsafe {
             ffi::TTF_CloseFont(self.raw);
@@ -111,6 +112,7 @@ impl Drop for Font {
 }
 
 impl Font {
+    #[fixed_stack_segment]
     pub fn get_style(&self) -> ~[FontStyle] {
         let bitflags = unsafe { ffi::TTF_GetFontStyle(self.raw) };
 
@@ -128,6 +130,7 @@ impl Font {
         }.collect()
     }
 
+    #[fixed_stack_segment]
     pub fn set_style(&mut self, flags: &[FontStyle]) {
         let bitflags = do flags.iter().fold(0) |bitflags, &flag| {
             bitflags | flag as ffi::TTF_StyleFlag
@@ -138,78 +141,91 @@ impl Font {
         }
     }
 
+    #[fixed_stack_segment]
     pub fn get_outline(&self) -> int {
         unsafe {
             ffi::TTF_GetFontOutline(self.raw) as int
         }
     }
 
+    #[fixed_stack_segment]
     pub fn set_outline(&mut self, outline: int) {
         unsafe {
             ffi::TTF_SetFontOutline(self.raw, outline as c_int);
         }
     }
 
+    #[fixed_stack_segment]
     pub fn get_hinting(&self) -> FontHinting {
         unsafe {
             cast::transmute(ffi::TTF_GetFontHinting(self.raw) as int)
         }
     }
 
+    #[fixed_stack_segment]
     pub fn set_hinting(&mut self, hinting: FontHinting) {
         unsafe {
             ffi::TTF_SetFontHinting(self.raw, hinting as ffi::TTF_Hinting);
         }
     }
 
+    #[fixed_stack_segment]
     pub fn get_kerning(&self) -> int {
         unsafe {
             ffi::TTF_GetFontKerning(self.raw) as int
         }
     }
 
+    #[fixed_stack_segment]
     pub fn set_kerning(&mut self, kerning: int) {
         unsafe {
             ffi::TTF_SetFontKerning(self.raw, kerning as c_int);
         }
     }
 
+    #[fixed_stack_segment]
     pub fn height(&self) -> int {
         unsafe {
             ffi::TTF_FontHeight(self.raw) as int
         }
     }
 
+    #[fixed_stack_segment]
     pub fn ascent(&self) -> int {
         unsafe {
             ffi::TTF_FontAscent(self.raw) as int
         }
     }
 
+    #[fixed_stack_segment]
     pub fn descent(&self) -> int {
         unsafe {
             ffi::TTF_FontDescent(self.raw) as int
         }
     }
 
+    #[fixed_stack_segment]
     pub fn line_skip(&self) -> int {
         unsafe {
             ffi::TTF_FontLineSkip(self.raw) as int
         }
     }
 
+    #[fixed_stack_segment]
     pub fn faces(&self) -> int {
         unsafe {
             ffi::TTF_FontFaces(self.raw) as int
         }
     }
 
+    #[fixed_stack_segment]
     pub fn face_is_fixed_width(&self) -> bool {
         unsafe {
             ffi::TTF_FontFaceIsFixedWidth(self.raw) > 0
         }
     }
 
+    #[fixed_stack_segment]
     pub fn face_family_name(&self) -> Option<~str> {
         unsafe {
             let ptr = ffi::TTF_FontFaceFamilyName(self.raw);
@@ -222,6 +238,7 @@ impl Font {
         }
     }
 
+    #[fixed_stack_segment]
     pub fn glyph_is_provided(&self, glyph: char) -> Option<int> {
         let ch = match char_to_utf16(glyph) {
             Some(ch) => ch,
@@ -236,6 +253,7 @@ impl Font {
         }
     }
 
+    #[fixed_stack_segment]
     pub fn glyph_metrics(&self, glyph: char) -> Result<~GlyphMetrics, ~str> {
         let ch = match char_to_utf16(glyph) {
             Some(ch) => ch,
@@ -259,11 +277,12 @@ impl Font {
         }
     }
 
+    #[fixed_stack_segment]
     pub fn text_size(&self, text: &str) -> Result<(int, int), ~str> {
         let mut w: c_int = 0;
         let mut h: c_int = 0;
 
-        do text.as_c_str |c_text| {
+        do text.with_c_str |c_text| {
             unsafe {
                 match ffi::TTF_SizeUTF8(self.raw, c_text, &mut w, &mut h) {
                     0 => Ok((w as int, h as int)),
@@ -283,26 +302,30 @@ fn char_to_utf16(glyph: char) -> Option<u16> {
     Some(str::from_char(glyph).to_utf16()[0])
 }
 
+#[fixed_stack_segment]
 pub fn init() -> bool {
     unsafe {
         ffi::TTF_Init() == 0
     }
 }
 
+#[fixed_stack_segment]
 pub fn was_init() -> bool {
     unsafe {
         ffi::TTF_WasInit() == 1
     }
 }
 
+#[fixed_stack_segment]
 pub fn quit() {
     unsafe {
         ffi::TTF_Quit();
     }
 }
 
+#[fixed_stack_segment]
 pub fn open_font(file: &str, ptsize: int) -> Result<~Font, ~str> {
-    do file.as_c_str |c_str| {
+    do file.with_c_str |c_str| {
         unsafe {
             let ptr = ffi::TTF_OpenFont(c_str, ptsize as c_int);
             if ptr.is_null() {
@@ -314,9 +337,10 @@ pub fn open_font(file: &str, ptsize: int) -> Result<~Font, ~str> {
     }
 }
 
+#[fixed_stack_segment]
 pub fn open_font_index(file: &str, ptsize: int, index: int)
         -> Result<~Font, ~str> {
-    do file.as_c_str |c_str| {
+    do file.with_c_str |c_str| {
         let ptr = unsafe {
             ffi::TTF_OpenFontIndex(c_str, ptsize as c_int, index as c_long)
         };
@@ -329,9 +353,10 @@ pub fn open_font_index(file: &str, ptsize: int, index: int)
     }
 }
 
+#[fixed_stack_segment]
 pub fn render_solid(font: &Font, text: &str, fg: Color)
         -> Result<~Surface, ~str> {
-    do text.as_c_str |c_text| {
+    do text.with_c_str |c_text| {
         let ptr = unsafe {
             ffi::TTF_RenderUTF8_Solid(font.raw, c_text, fg.to_struct())
         };
@@ -344,9 +369,10 @@ pub fn render_solid(font: &Font, text: &str, fg: Color)
     }
 }
 
+#[fixed_stack_segment]
 pub fn render_shaded(font: &Font, text: &str, fg: Color, bg: Color)
         -> Result<~Surface, ~str> {
-    do text.as_c_str |c_text| {
+    do text.with_c_str |c_text| {
         let ptr = unsafe {
             ffi::TTF_RenderUTF8_Shaded(font.raw, c_text, fg.to_struct(),
                 bg.to_struct())
@@ -360,9 +386,10 @@ pub fn render_shaded(font: &Font, text: &str, fg: Color, bg: Color)
     }
 }
 
+#[fixed_stack_segment]
 pub fn render_blended(font: &Font, text: &str, fg: Color)
         -> Result<~Surface, ~str> {
-    do text.as_c_str |c_text| {
+    do text.with_c_str |c_text| {
         let ptr = unsafe {
             ffi::TTF_RenderUTF8_Blended(font.raw, c_text, fg.to_struct())
         };
