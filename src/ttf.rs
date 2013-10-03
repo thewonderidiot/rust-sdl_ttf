@@ -104,7 +104,7 @@ pub struct Font {
 
 impl Drop for Font {
     #[fixed_stack_segment]
-    fn drop(&self) {
+    fn drop(&mut self) {
         unsafe {
             ffi::TTF_CloseFont(self.raw);
         }
