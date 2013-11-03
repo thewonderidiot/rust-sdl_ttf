@@ -9,7 +9,7 @@
 
 extern mod sdl;
 
-use std::cast;
+use std::num::FromPrimitive;
 use std::libc::{c_int, c_long};
 use std::str;
 
@@ -36,41 +36,41 @@ mod ffi {
 
     #[link_args = "-lSDL_ttf"]
     extern "C" {
-        fn TTF_Init() -> c_int;
-        fn TTF_WasInit() -> c_int;
-        fn TTF_Quit();
-        fn TTF_OpenFont(file: *c_char, ptsize: c_int) -> *TTF_Font;
-        fn TTF_OpenFontIndex(file: *c_char, ptsize: c_int, index: c_long)
+        pub fn TTF_Init() -> c_int;
+        pub fn TTF_WasInit() -> c_int;
+        pub fn TTF_Quit();
+        pub fn TTF_OpenFont(file: *c_char, ptsize: c_int) -> *TTF_Font;
+        pub fn TTF_OpenFontIndex(file: *c_char, ptsize: c_int, index: c_long)
             -> *TTF_Font;
-        fn TTF_CloseFont(font: *TTF_Font);
+        pub fn TTF_CloseFont(font: *TTF_Font);
 
-        fn TTF_GetFontStyle(font: *TTF_Font) -> TTF_StyleFlag;
-        fn TTF_SetFontStyle(font: *TTF_Font, style: TTF_StyleFlag);
-        fn TTF_GetFontOutline(font: *TTF_Font) -> c_int;
-        fn TTF_SetFontOutline(font: *TTF_Font, outline: c_int);
-        fn TTF_GetFontHinting(font: *TTF_Font) -> TTF_Hinting;
-        fn TTF_SetFontHinting(font: *TTF_Font, hinting: TTF_Hinting);
-        fn TTF_GetFontKerning(font: *TTF_Font) -> c_int;
-        fn TTF_SetFontKerning(font: *TTF_Font, kerning: c_int);
-        fn TTF_FontHeight(font: *TTF_Font) -> c_int;
-        fn TTF_FontAscent(font: *TTF_Font) -> c_int;
-        fn TTF_FontDescent(font: *TTF_Font) -> c_int;
-        fn TTF_FontLineSkip(font: *TTF_Font) -> c_int;
-        fn TTF_FontFaces(font: *TTF_Font) -> c_long;
-        fn TTF_FontFaceIsFixedWidth(font: *TTF_Font) -> c_int;
-        fn TTF_FontFaceFamilyName(font: *TTF_Font) -> *c_char;
-        fn TTF_FontGlyphIsProvided(font: *TTF_Font, glyph: u16) -> c_int;
-        fn TTF_GlyphMetrics(font: *TTF_Font, glyph: u16, minx: *mut c_int,
+        pub fn TTF_GetFontStyle(font: *TTF_Font) -> TTF_StyleFlag;
+        pub fn TTF_SetFontStyle(font: *TTF_Font, style: TTF_StyleFlag);
+        pub fn TTF_GetFontOutline(font: *TTF_Font) -> c_int;
+        pub fn TTF_SetFontOutline(font: *TTF_Font, outline: c_int);
+        pub fn TTF_GetFontHinting(font: *TTF_Font) -> TTF_Hinting;
+        pub fn TTF_SetFontHinting(font: *TTF_Font, hinting: TTF_Hinting);
+        pub fn TTF_GetFontKerning(font: *TTF_Font) -> c_int;
+        pub fn TTF_SetFontKerning(font: *TTF_Font, kerning: c_int);
+        pub fn TTF_FontHeight(font: *TTF_Font) -> c_int;
+        pub fn TTF_FontAscent(font: *TTF_Font) -> c_int;
+        pub fn TTF_FontDescent(font: *TTF_Font) -> c_int;
+        pub fn TTF_FontLineSkip(font: *TTF_Font) -> c_int;
+        pub fn TTF_FontFaces(font: *TTF_Font) -> c_long;
+        pub fn TTF_FontFaceIsFixedWidth(font: *TTF_Font) -> c_int;
+        pub fn TTF_FontFaceFamilyName(font: *TTF_Font) -> *c_char;
+        pub fn TTF_FontGlyphIsProvided(font: *TTF_Font, glyph: u16) -> c_int;
+        pub fn TTF_GlyphMetrics(font: *TTF_Font, glyph: u16, minx: *mut c_int,
             maxx: *mut c_int, miny: *mut c_int, maxy: *mut c_int,
             advance: *mut c_int) -> c_int;
-        fn TTF_SizeUTF8(font: *TTF_Font, text: *c_char, w: *mut c_int,
+        pub fn TTF_SizeUTF8(font: *TTF_Font, text: *c_char, w: *mut c_int,
             h: *mut c_int) -> c_int;
 
-        fn TTF_RenderUTF8_Solid(font: *TTF_Font, text: *c_char,
+        pub fn TTF_RenderUTF8_Solid(font: *TTF_Font, text: *c_char,
             fg: SDL_Color) -> *SDL_Surface;
-        fn TTF_RenderUTF8_Shaded(font: *TTF_Font, text: *c_char,
+        pub fn TTF_RenderUTF8_Shaded(font: *TTF_Font, text: *c_char,
             fg: SDL_Color, bg: SDL_Color) -> *SDL_Surface;
-        fn TTF_RenderUTF8_Blended(font: *TTF_Font, text: *c_char,
+        pub fn TTF_RenderUTF8_Blended(font: *TTF_Font, text: *c_char,
             fg: SDL_Color) -> *SDL_Surface;
     }
 }
@@ -83,6 +83,7 @@ pub enum FontStyle {
     StrikethroughStyle = ffi::TTF_STYLE_STRIKETHROUGH as int
 }
 
+#[deriving(FromPrimitive)]
 pub enum FontHinting {
     NormalHinting = ffi::TTF_HINTING_NORMAL as int,
     LightHinting = ffi::TTF_HINTING_LIGHT as int,
@@ -158,7 +159,7 @@ impl Font {
     #[fixed_stack_segment]
     pub fn get_hinting(&self) -> FontHinting {
         unsafe {
-            cast::transmute(ffi::TTF_GetFontHinting(self.raw) as int)
+            FromPrimitive::from_int(ffi::TTF_GetFontHinting(self.raw) as int).unwrap()
         }
     }
 
