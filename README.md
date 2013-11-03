@@ -17,7 +17,7 @@ SDL_ttf bindings for Rust.
 
     $ git clone https://github.com/sfackler/rust-sdl_ttf.git
     $ cd rust-sdl_ttf
-    $ make
+    $ rustpkg install sdl_ttf
 
 You may have to tell rustc where SDL_ttf and/or rust-sdl are located. E.g.:
 
